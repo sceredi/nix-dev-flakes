@@ -7,7 +7,7 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
-        python = pkgs.python3;
+        pythonPackages = pkgs.python311Packages;
         venvDir = "./.venv";
 
       in {
@@ -15,41 +15,40 @@
           name = "basicPython";
           inherit venvDir;
 
-          packages = with pkgs;
-            [
-              (python.withPackages (ps:
-                with ps; [
-                  # notebook
-                  jupyter
-                  jupyterlab
-                  ipykernel
-                  ipython
+          nativeBuildInputs = with pythonPackages; [
+            python
 
-                  # scientific computing
-                  pandas # Data structures & tools
-                  numpy # Array & matrices
-                  scipy # Integral, solving differential, equations, optimizations)
+            # notebook
+            jupyter
+            jupyterlab
+            ipykernel
+            ipython
 
-                  # Visualization
-                  matplotlib # plot & graphs
-                  seaborn # heat maps, time series, violin plot
+            # scientific computing
+            pandas # Data structures & tools
+            numpy # Array & matrices
+            scipy # Integral, solving differential, equations, optimizations)
 
-                  # Algorithmic Libraries
-                  scikit-learn # Machine learning: regression, classificatons,..
-                  statsmodels # Ecplore data, estimate statistical models, & perform statistical test.
+            # Visualization
+            matplotlib # plot & graphs
+            seaborn # heat maps, time series, violin plot
 
-                  # Formatting
-                  black
+            # Algorithmic Libraries
+            scikit-learn # Machine learning: regression, classificatons,..
+            statsmodels # Ecplore data, estimate statistical models, & perform statistical test.
 
-                ]))
-            ];
+            # Formatting
+            black
+
+          ];
           shellHook = ''
             if [ ! -d $venvDir ]; then
               echo "Creating virtual environment in $venvDir"
-              ${python}/bin/python -m venv $venvDir
+              ${pythonPackages.python}/bin/python -m venv $venvDir
             else
               echo "Using existing virtual environment in $venvDir"
             fi
+            source $venvDir/bin/activate
           '';
         };
       });
